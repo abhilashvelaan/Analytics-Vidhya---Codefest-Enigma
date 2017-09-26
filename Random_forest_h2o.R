@@ -1,3 +1,4 @@
+#loading the required libraries
 library(tidyverse)
 library(lubridate)
 library(caret)
@@ -82,6 +83,7 @@ h2o.init()
 train.h2o = as.h2o(train_1)
 test.h20 = as.h2o(test_1)
 
+#creating splits for h2o test,train and valid data
 splits = h2o.splitFrame(train.h2o, 0.7, seed = 4321)
 
 train_h2o = h2o.assign(splits[[1]], "train.hex")
@@ -94,14 +96,14 @@ colnames(train_h2o)
 y.dep = 15
 x.indep = c(1:14)
 
-rf2 = h2o.randomForest(training_frame = train_h2o,
-                       validation_frame = valid_h2o,
+rf2 = h2o.randomForest(training_frame = train_h2o, #choosing the training dataset 
+                       validation_frame = valid_h2o, #choosing the valididation dataset
                        x = x.indep, y = y.dep,
                        model_id = "rf_v2",
-                       ntrees = 500,
-                       max_depth = 30,
-                       stopping_rounds = 2,
-                       stopping_tolerance = 1e-2,
+                       ntrees = 500, #no of trees to be generated 
+                       max_depth = 30, #max no of trees
+                       stopping_rounds = 2, #Early stopping based on convergence of stopping_metric. 
+                       stopping_tolerance = 1e-2, #Relative tolerance for metric-based stopping criterion
                        score_each_iteration = T,
                        seed = 4321 )
 summary(rf2)
@@ -110,4 +112,6 @@ rf2@model$validation_metrics
 
 predict_rf2 = as.data.frame(h2o.predict(rf2, test_h2o))
 sub_rf2 = data.frame(ID = test_submission$ID, attempts_range = predict_rf2$predict)
-write.csv(sub_rf2, file = "E:\\EXTRA\\AV\\CODEFEST-ENIGMA -2017\\SUBMISSIONS\\submission_h2o_rf2_4.csv",row.names = F)
+write.csv(sub_rf2, file = "~\\submission_h2o_rf2_4.csv",row.names = F)
+
+#This model got a F1 score of 0.4669
